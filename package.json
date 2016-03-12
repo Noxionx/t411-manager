@@ -1,0 +1,15 @@
+{
+  "name": "t411-manager",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "q": "^1.4.1",
+    "request": "^2.69.0"
+  },
+  "author": "",
+  "license": "ISC"
+}
