@@ -3,6 +3,7 @@ var Q = require('q')
 
 var API_HOST = "https://api.t411.ch"
 
+
 function T411Manager(options){
     var that = this
 
@@ -20,7 +21,7 @@ function T411Manager(options){
         deferred.resolve()
     }
     else{
-        that.getUserToken(options.username, options.password).then(function(token){
+        _getUserToken(options.username, options.password).then(function(token){
             that._token = token
             deferred.resolve()
         }, function(e){
@@ -29,38 +30,45 @@ function T411Manager(options){
     }
 }
 
-T411Manager.prototype = {
-    getUserToken: function(username, password){
-        var deferred = Q.defer()
+function _getUserToken(username, password){
+    var deferred = Q.defer()
 
-        var postData = {
-            "username" : username,
-            "password" : password
+    var postData = {
+        "username" : username,
+        "password" : password
+    }
+    request.post({url: (API_HOST+'/auth'), form: postData}, function(err,httpResponse,body){
+        if(err){
+            deferred.reject('Api error : '+ err)
         }
-        request.post({url: (API_HOST+'/auth'), form: postData}, function(err,httpResponse,body){
-            if(err){
-                deferred.reject('Api error : '+ err)
-            }
-            else{
-                try{
-                    var jsonBody = JSON.parse(body)
-                    if(jsonBody['token']){
-                        deferred.resolve(jsonBody['token'])
-                    }
-                    else{
-                        deferred.reject('Wrong credentials')
-                    }
+        else{
+            try{
+                var jsonBody = JSON.parse(body)
+                if(jsonBody['token']){
+                    deferred.resolve(jsonBody['token'])
                 }
-                catch(e){
-                    deferred.reject('Api error : '+ (body || httpResponse.statusCode + ' - ' + httpResponse.statusMessage))
+                else{
+                    deferred.reject('Wrong credentials')
                 }
             }
-        })
+            catch(e){
+                deferred.reject('Api error : '+ (body || httpResponse.statusCode + ' - ' + httpResponse.statusMessage))
+            }
+        }
+    })
 
-        return deferred.promise
-    },
+    return deferred.promise
+}
+
+T411Manager.prototype = {
     isConnected: function(){
         return !!this._token
+    },
+    getToken : function(){
+        var that = this
+        return that._tokenPromise.then(function(){
+            return that._token
+        })
     },
     getCategorySize: function(cid){
         var deferred = Q.defer(),
@@ -153,8 +161,8 @@ T411Manager.prototype = {
                 else{
                     try{
                         var processedTorrents = []
-                        var bodyLines   = body.split('\n')
-                        var strResult = (bodyLines.length>0)?bodyLines[3]:bodyLines[0]
+                        var bodyLines = body.split('\n')
+                        var strResult = (bodyLines.length>1)?bodyLines[3]:bodyLines[0]
                         if(!(/[^,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t]/.test(strResult.replace(/"(\\.|[^"\\])*"/g,'')))){
                             var reqResult   = JSON.parse(strResult)
                             var torrents = reqResult.torrents?reqResult.torrents:[]
