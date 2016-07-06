@@ -1,6 +1,6 @@
 {
   "name": "t411-manager",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -10,6 +10,9 @@
     "q": "^1.4.1",
     "request": "^2.69.0"
   },
-  "author": "",
-  "license": "ISC"
+  "author": "Noxionx",
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "^3.5.0"
+  }
 }

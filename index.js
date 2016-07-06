@@ -1,7 +1,8 @@
-var request = require("request")
-var Q = require('q')
+var request = require("request");
+var Q = require('q');
+var fs = require('fs');
 
-var API_HOST = "https://api.t411.ch"
+var API_HOST = "https://api.t411.ch";
 
 
 function T411Manager(options){
@@ -32,21 +33,21 @@ function T411Manager(options){
 }
 
 function Torrent(data){
-    this.id = data.id
-    this.name = data.name
-    this.category = !isNaN(parseInt(data.category))? parseInt(data.category):0
-    this.seeders = !isNaN(parseInt(data.seeders))? parseInt(data.seeders):0
-    this.leechers = !isNaN(parseInt(data.leechers))? parseInt(data.leechers):0
-    this.comments = !isNaN(parseInt(data.comments))? parseInt(data.comments):0
-    this.isVerified = !!data.isVerified
-    this.added = new Date(data.added)
-    this.size = !isNaN(parseInt(data.size))? parseInt(data.size):0
-    this.times_completed = !isNaN(parseInt(data.times_completed))? parseInt(data.times_completed):0
-    this.owner = data.owner
-    this.categoryname = data.categoryname
-    this.categoryimage = data.categoryimage
-    this.username = data.username
-    this.privacy = data.privacy
+    this.id = data.id;
+    this.name = data.name;
+    this.category = !isNaN(parseInt(data.category))? parseInt(data.category):0;
+    this.seeders = !isNaN(parseInt(data.seeders))? parseInt(data.seeders):0;
+    this.leechers = !isNaN(parseInt(data.leechers))? parseInt(data.leechers):0;
+    this.comments = !isNaN(parseInt(data.comments))? parseInt(data.comments):0;
+    this.isVerified = !!data.isVerified;
+    this.added = new Date(data.added);
+    this.size = !isNaN(parseInt(data.size))? parseInt(data.size):0;
+    this.times_completed = !isNaN(parseInt(data.times_completed))? parseInt(data.times_completed):0;
+    this.owner = data.owner;
+    this.categoryname = data.categoryname;
+    this.categoryimage = data.categoryimage;
+    this.username = data.username;
+    this.privacy = data.privacy;
 }
 
 /**
@@ -240,6 +241,23 @@ T411Manager.prototype = {
         }, deferred.reject);
 
         return deferred.promise;
+    },
+
+    saveTorrent: function(id, filename){
+        var deferred = Q.defer(),
+            that = this;
+
+        that._tokenPromise.then(function() {
+            var url = API_HOST + '/torrents/download/' + id;
+            request.get({url: url, headers: {'Authorization':that._token}})
+                .on('response', function(response) {
+                    deferred.resolve(response.statusCode);
+                })
+                .on('error', function(err){
+                    deferred.reject(err);
+                })
+                .pipe(fs.createWriteStream(filename));
+        });
     }
 };
 
