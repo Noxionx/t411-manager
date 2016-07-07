@@ -258,6 +258,8 @@ T411Manager.prototype = {
                 })
                 .pipe(fs.createWriteStream(filename));
         });
+
+        return deferred.promise;
     }
 };
 
