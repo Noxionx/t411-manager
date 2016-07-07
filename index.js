@@ -250,11 +250,11 @@ T411Manager.prototype = {
         that._tokenPromise.then(function() {
             var url = API_HOST + '/torrents/download/' + id;
             request.get({url: url, headers: {'Authorization':that._token}})
-                .on('response', function(response) {
-                    deferred.resolve(response.statusCode);
-                })
                 .on('error', function(err){
                     deferred.reject(err);
+                })
+                .on('end', function(){
+                    deferred.resolve();
                 })
                 .pipe(fs.createWriteStream(filename));
         });
