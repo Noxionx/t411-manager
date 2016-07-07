@@ -1,7 +1,11 @@
 {
   "name": "t411-manager",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "",
+  "repository" : {
+    "type" : "git",
+    "url" : "https://github.com/Noxionx/t411-manager"
+  },
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
